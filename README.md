@@ -21,4 +21,18 @@
 
 ## CV part:
 
-The initial goal was to use CNN to do the classification of traffic sign dataset.
+See initial CV line detection node in src/.ipynb file.
+
+After going through several lane detection examples, I found that the main strategy of them are similar. Here is the summary of general method to detect the lane on road(or parking lines):
+1. Cropping the raw image into a region of interest.
+2. Convert the raw image into a Grayscale image to simplify edge detection.
+3. Use Canny Edge Detection to find the edges.
+4. Generating Lines from Edge Pixels.
+5. Using Hough Transfroms to detect lines.
+6. Mark the detected lines as an overlap.
+7. Creating the lines we want by grouping the lines with certain property (e.g. the slope)
+8. Plot the lines we derived in the image.
+
+### Things to do:
+1. There are basically two ways to detect the lines from turtlebot3, one is to detect by image from a snapshot of the camera, another one is to detect by video in real time.(The second one is much cooler than the first one and I am ready to try that.)
+2. Since the basic line detection just set a filter to collect the lines whose slopes are in a certain range, it may not be robust in video detection because the slopes are changing. So next I am going to develop this method to detect the changing lines.

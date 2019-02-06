@@ -36,3 +36,12 @@ After going through several lane detection examples, I found that the main strat
 ### Things to do:
 1. There are basically two ways to detect the lines from turtlebot3, one is to detect by image from a snapshot of the camera, another one is to detect by video in real time.(The second one is much cooler than the first one and I am ready to try that.)
 2. Since the basic line detection just set a filter to collect the lines whose slopes are in a certain range, it may not be robust in video detection because the slopes are changing. So next I am going to develop this method to detect the changing lines.
+
+## Set up turtlebot3 camera:
+Run the commands in turtlebot3  
+>**$ roslaunch turtlebot3_bringup turtlebot3_rpicamera.launch**
+
+>**$ roslaunch raspicam_node camerav2_1280x960.launch**
+
+Then in Remote PC, run:
+>**$ rqt_image_view**

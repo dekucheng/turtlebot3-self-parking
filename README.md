@@ -18,3 +18,7 @@
   to bring up the turtlebot. After doing this, check rostopic to see if the topics on turtlebot are available.
 
 3. Now turtlebot has already been set up and is the ROS is ready to run nodes for the turtlebot. (So far see examples in manipulation.py)
+
+## CV part:
+
+The initial goal was to use CNN to do the classification of traffic sign dataset.

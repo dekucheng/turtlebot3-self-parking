@@ -45,3 +45,15 @@ Run the commands in turtlebot3
 
 Then in Remote PC, run:
 >**$ rqt_image_view**
+
+
+## CV_test in turtlebot3 camera (week 6):
+1. solve the low fps problem by using publish a compressed image and small queue_size.
+2. calibration finished, rectified seems well (needs test in real-world)
+3. go through the tutorial that how opencv communicate with ROS.
+4. CompressedImage msg type seems cannot be transformed by cv_bridge, mannually extract the data from compressedImage to fit into opencv for further operation.
+
+### Things to do:
+1. Check if the calibration works well for bird's eye view camera.
+2. find proper algorithm to send back the location of detected line.
+3. find out urdf relations between camera frame and base frame to navigation.

@@ -14,6 +14,7 @@
   <url type="bugtracker">https://github.com/ROBOTIS-GIT/turtlebot3/issues</url>
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
+  <depend>cv_bridge</depend>
   <depend>actionlib</depend>
   <depend>interactive_markers</depend>
   <depend>std_msgs</depend>

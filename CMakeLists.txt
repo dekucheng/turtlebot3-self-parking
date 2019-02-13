@@ -19,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   turtlebot3_msgs
   message_generation
+  cv_bridge
+
 )
 
 ################################################################################
@@ -39,6 +41,7 @@ generate_messages(
   std_msgs
   geometry_msgs
   actionlib_msgs
+
 )
 
 ################################################################################
@@ -61,6 +64,7 @@ catkin_package(
     actionlib_msgs
     turtlebot3_msgs
     message_runtime
+    cv_bridge
 )
 
 ################################################################################

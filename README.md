@@ -61,12 +61,23 @@ Then in Remote PC, run:
 
 ## Week 7:
 Run the camera:
->**$  $ roslaunch turtlebot3_autorace_camera turtlebot3_autorace_camera_pi.launch**
+>**roslaunch turtlebot3_autorace_camera turtlebot3_autorace_camera_pi.launch**
 
 Run the rectified camera:
+>**export AUTO_IN_CALIB=action**
 >**roslaunch turtlebot3_autorace_camera turtlebot3_autorace_intrinsic_camera_calibration.launch**
 
 The rectified image is published in topic **/camera/image_rect_color/compressed**
 
 Bringup robot to enable multiple devices (compatible with camera launch file):
 >**roslaunch turtlebot3_bringup turtlebot3_robot.launch**
+
+Figured out how to retrieve the Image msg type by using
+>**rosrun image_transport republish compressed in:=camera/imageect_color raw out:=camera/rect_color/image**
+Now the Image msg type if published on topic camera/rect_color/image.
+
+The launch file to set up the turtlebot3 for action is now ready
+>**roslaunch turtlebselfparking turtlebot3_robot.launch**
+
+Track AR TAG in rviz, run
+>**roslaunch turtlebot3_selfparking turtlebot3_artag_detect.launch**

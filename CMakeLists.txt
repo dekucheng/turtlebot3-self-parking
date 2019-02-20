@@ -35,12 +35,17 @@ find_package(catkin REQUIRED COMPONENTS
 #  FILES
 #  Turtlebot3.action
 #)
+add_service_files(
+  FILES
+  CallCompressedImage.srv
+)
 
 generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
   actionlib_msgs
+  sensor_msgs
 
 )
 

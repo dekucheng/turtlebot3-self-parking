@@ -19,6 +19,6 @@
     <param name="framerate" value="20"/>
     <param name="camera_frame_id" value="camera"/>
   </node>
-  <node pkg="image_transport" type="republish" name="republish" args="compressed      in:=/camera/image_rect_color       raw out:=/camera/rect_color/image" />
+  <node name="republish" type="republish" pkg="image_transport" output="screen"  args="compressed      in:=/camera/image_rect_color       raw out:=/camera/rect_color/image" />
   
 </launch>

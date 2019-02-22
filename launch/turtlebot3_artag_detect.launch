@@ -29,5 +29,6 @@
 		<remap from="camera_image"  to="/camera/rect_color/image" />
 		<remap from="camera_info"   to="/camera/camera_info" />
 	</node>
+  <node name="republish_com2img" type="republish" pkg="image_transport" args="compressed in:=/camera/image_rect_color raw out:=/camera/rect_color/image" />
 
 </launch>

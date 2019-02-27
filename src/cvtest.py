@@ -12,6 +12,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from turtlebot3_selfparking.srv import*
 from std_srvs.srv import Trigger
 import numpy as np
+import os
 
 VERBOSE = True
 
@@ -57,7 +58,7 @@ class image_receiver():
 
         #self.subscriber.unregister()
     def svc_set_init_image(self, data):
-
+        # CompressedIamge to cv2 image
         np_arr = np.fromstring(self.image_np, np.uint8)
         init_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
@@ -65,9 +66,13 @@ class image_receiver():
         rospy.sleep(1)
         cv2.imshow('cv_img', init_image)
 
-        cv2.imwrite('parking_test_02.jpg',init_image)
+        path = '/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src'
 
-        cv2.waitKey(0)
+
+        cv2.imwrite(os.path.join(path,'parking_test_02.jpg'),init_image)
+
+        cv2.waitKey(3000)
+        cv2.destroyAllWindows()
 
 
         #if rospy.ROSInterruptException:

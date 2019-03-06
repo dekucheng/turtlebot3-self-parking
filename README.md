@@ -81,3 +81,10 @@ The launch file to set up the turtlebot3 for action is now ready
 
 Track AR TAG in rviz, run
 >**roslaunch turtlebot3_selfparking turtlebot3_artag_detect.launch**
+
+## Week 8:
+1. Finish the roughly pipeline for lines intersection localization, use: hierarchical k-means clusters.
+2. Use camera matrix to calculate the location of dist (x,y)
+3. Need odometry to navigation
+4. Plan to use homography matrix to finish the rest of the task
+5. More relative work needs lane-following & PID-controller.

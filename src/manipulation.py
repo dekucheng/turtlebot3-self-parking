@@ -2,6 +2,7 @@
 
 import rospy
 import numpy as np
+import math
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
 from ar_track_alvar_msgs.msg import AlvarMarkers
@@ -107,7 +108,27 @@ class Manipulation():
         rospy.sleep(3)
     '''
 
+    def head_to_parkingslot(self):
+        err_pos = math.sqrt((self.current_pos_x - self.start_pos_x) ** 2 + (self.current_pos_y - self.start_pos_y) ** 2) - desired_dist
 
+        rospy.loginfo("Parking_Straight")
+
+        Kp = 0.4
+        Kd = 0.05
+
+        angular_z = Kp * err_pos + Kd * (err_pos - self.lastError)
+        self.lastError = err_pos
+
+        twist = Twist()
+        twist.linear.x = 0.07
+        twist.linear.y = 0
+        twist.linear.z = 0
+        twist.angular.x = 0
+        twist.angular.y = 0
+        twist.angular.z = 0
+        self.pub_cmd_vel.publish(twist)
+
+        return err_pos
 
 
 

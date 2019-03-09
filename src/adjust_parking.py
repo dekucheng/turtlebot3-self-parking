@@ -7,7 +7,7 @@ import roslib
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from scipy.ndimage import filters
-from std_msgs.msg import String
+from std_msgs.msg import String,Float64
 import copy
 from sensor_msgs.msg import Image,CompressedImage
 from cv_bridge import CvBridge, CvBridgeError
@@ -75,26 +75,26 @@ def lines_array_represent(lines):
     for i in range(lines_invk.shape[0]):
         k = lines_invk[i][0]
         b = lines_invk[i][1]
-        if 0 <= b <= 480:
+        if 0 <= b <= 240:
             lines_2pts[i][0] = 0
             lines_2pts[i][1] = b
-            check = 640 * k + b
-            if 0 <= check <= 480:
-                lines_2pts[i][2] = 640
+            check = 1000 * k + b
+            if 0 <= check <= 240:
+                lines_2pts[i][2] = 1000
                 lines_2pts[i][3] = check
-            elif check > 480:
-                lines_2pts[i][2] = (480-b)/k
-                lines_2pts[i][3] = 480
+            elif check > 240:
+                lines_2pts[i][2] = (240-b)/k
+                lines_2pts[i][3] = 240
             else:
                 lines_2pts[i][2] = -b/k
                 lines_2pts[i][3] = 0
 
-        elif lines[i][1] > 480:
-            lines_2pts[i][0] = (480-b)/k
-            lines_2pts[i][1] = 480
-            check = 640 * k + b
-            if 0 <= check <= 480:
-                lines_2pts[i][2] = 640
+        elif lines[i][1] > 240:
+            lines_2pts[i][0] = (240-b)/k
+            lines_2pts[i][1] = 240
+            check = 1000 * k + b
+            if 0 <= check <= 240:
+                lines_2pts[i][2] = 1000
                 lines_2pts[i][3] = check
             else:
                 lines_2pts[i][2] = -b/k
@@ -103,13 +103,13 @@ def lines_array_represent(lines):
         else:
             lines_2pts[i][0] = -b/k
             lines_2pts[i][1] = 0
-            check = 640 * k + b
-            if 0 <= check <= 480:
-                lines_2pts[i][2] = 640
+            check = 1000 * k + b
+            if 0 <= check <= 240:
+                lines_2pts[i][2] = 1000
                 lines_2pts[i][3] = check
             else:
-                lines_2pts[i][2] = (480-b)/k
-                lines_2pts[i][3] = 480
+                lines_2pts[i][2] = (240-b)/k
+                lines_2pts[i][3] = 240
 
     return lines_2pts
 
@@ -138,19 +138,17 @@ def compress2img(data):
     img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     return img
 
-class image_receiver():
+class adjust_parking():
 
     def __init__(self):
         #self.image_pub = rospy.Publisher("image_topic_1",CompressedImage,queue_size=10)
         self.bridge = CvBridge()
-        self.pub_image_crop_lines = rospy.Publisher('cv_test/crop_lines', Image, queue_size=1)
-        self.pub_image_cannyed_lines = rospy.Publisher('cv_test/cannyed_lines', Image, queue_size=1)
-        self.pub_image_mid_point_img = rospy.Publisher('cv_test/mid_point_img', Image, queue_size=1)
-        self.pub_mid_point = rospy.Publisher('cv_test/mid_point', Point, queue_size=1)
-        self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
-        #self.call_get_mid_location = rospy.ServiceProxy('cv_test/get_mid_location', GetPointLocation)
-        rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
-        self.image_np = CompressedImage()
+        self.pub_image_crop_lines = rospy.Publisher('adjust_parking/crop_lines', Image, queue_size= 1)
+        self.pub_image_cannyed_lines = rospy.Publisher('adjust_parking/cannyed_lines', Image, queue_size= 1)
+        self.pub_image_mid_point_img = rospy.Publisher('adjust_parking/mid_point_img', Image, queue_size= 1)
+        self.pub_adjust_angle = rospy.Publisher('adjust_parking/adjust_angle', Float64, queue_size = 1)
+        self.image_sub = rospy.Subscriber("/camera/image_projected_compensated", Image,self.gtimage)
+        #self.call_get_mid_location = rospy.ServiceProxy('adjust_parking/get_mid_location', GetPointLocation)
 
     def region_of_interest(self, img, vertices):
 
@@ -167,26 +165,20 @@ class image_receiver():
         Here images get converted and features detected'''
 
         #### direct conversion to CV2 reac means the name of subscribing topic reac_compress ####
-        self.image_reac = ros_data.data
+        #self.init_image = self.bridge.imgmsg_to_cv2(self.image_reac)
+        self.init_image = self.bridge.imgmsg_to_cv2(ros_data,"bgr8")
+        #cv2.imwrite('/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/IMAGE.jpg',self.init_image)
 
-        self.init_image = compress2img(self.image_reac)
-        cv2.imwrite('/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/IMAGE.jpg',self.init_image)
-
-        #cv2.imshow('img',self.init_image)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-        #print(self.init_image.shape)
-        #\self.init_image = park5
         self.height = self.init_image.shape[0]
         self.width = self.init_image.shape[1]
         self.region_of_vertices = [
-            (60, self.height*0.8),
+            (0, self.height*0.4),
             #(0, 350),
-            (60, self.height*0.3),
-            (580,self.height*0.3),
-            (580,self.height*0.8),
+            (self.width, self.height*0.4),
+            (self.width,0),
+            (0,0),
         ]
-        pts = np.array([[60, self.height*0.8], [60, self.height*0.3], [580,self.height*0.3], [580, self.height*0.8]], np.int32)
+        pts = np.array([[0, self.height*0.4], [self.width, self.height*0.4], [self.width,0], [0,0]], np.int32)
         pts = pts.reshape((-1,1,2))
 
         # using hsv to filter out the color we want
@@ -207,7 +199,6 @@ class image_receiver():
             cannyed_image,
             np.array([self.region_of_vertices], np.int32)
         )
-        print('cropped image get')
         show_cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_GRAY2BGR)
 
         self.pub_image_cannyed_lines.publish(self.bridge.cv2_to_imgmsg(show_cropped_image, "bgr8"))
@@ -218,7 +209,7 @@ class image_receiver():
             theta=np.pi / 80,
             threshold=35,
             lines=np.array([]),
-            minLineLength=40,
+            minLineLength=80,
             maxLineGap=10
         )
         if lines is not  None:
@@ -241,6 +232,11 @@ class image_receiver():
                     dev = line[0][1]-slope*line[0][0]
                     slope_list.append(slope)
                     dev_list.append(dev)
+                else:
+                    slope = 240
+                    dev = line[0][1]-slope*line[0][0]
+                    slope_list.append(slope)
+                    dev_list.append(dev)
 
             lines_array = np.column_stack((slope_list, dev_list))
             #lines_array_represent = copy.copy(lines_array)
@@ -259,82 +255,30 @@ class image_receiver():
                 self.new_lines_img = draw_lines(self.init_image, self.new_lines, color=[255, 0, 0], thickness=3)
 
                 self.pub_image_crop_lines.publish(self.bridge.cv2_to_imgmsg(self.new_lines_img, "bgr8"))
-                print('%d lines have been detected' %self.clst_number)
+                print('%d clusters lines have been detected' %self.clst_number)
             else:
-                print('Invalid lines numbers, fail to use hierarchycal K-means')
+                print('Invalid lines numbers, fail to use Hierarchycal K-means')
 
-            if self.clst_number == 3:
-                CLST_NUM = True
-            else:
-                CLST_NUM = False
-
-       # CompressedIamge to cv2 image and init init_image
-
-    def svc_parking_point_pipeline(self, data):
-        print(CLST_NUM)
-        if True:
-            print('parking lanes number is valid, begin to check intersection points!')
-            intersect_pts = list()
-            for i in range(self.new_lines.shape[0]):
-                for j in range(i+1, self.new_lines.shape[0]):
-
-                    k1 = (self.new_lines[i][0][3] - self.new_lines[i][0][1])/(self.new_lines[i][0][2]-self.new_lines[i][0][0])
-                    k2 = (self.new_lines[j][0][3] - self.new_lines[j][0][1])/(self.new_lines[j][0][2]-self.new_lines[j][0][0])
-                    x = - (self.new_lines[j][0][1]-self.new_lines[i][0][1])/(k2-k1)
-                    y = k1*x + self.new_lines[i][0][1]
-                    temp = [x, y]
-
-                    intersect_pts.append(temp)
-            intersect_pts = np.array(intersect_pts)
-            intersect_pts = intersect_pts.astype(int)
-            # drop the pts that not in detect region
-            index= 0
-            for i in range(intersect_pts.shape[0]):
-                x = intersect_pts[index][0]
-                y = intersect_pts[index][1]
-                if (x<=60 or x>=580 or y<=144 or y>=384):
-                    intersect_pts = np.delete(intersect_pts, index, 0)
-                    index -= 1
-                index += 1
-
-            # get the mid point of the pts
-            if intersect_pts.shape[0] == 2:
-                print('Intersection points are valid, begin to calculate parking point!')
-                mid_x = np.sum(intersect_pts[:,0])/intersect_pts.shape[0]
-                mid_y = np.sum(intersect_pts[:,1])/intersect_pts.shape[0]
-                ref_y = np.max(intersect_pts[:,1])
-                ref_index = np.argmax(intersect_pts[:,1])
-                ref_x = intersect_pts[ref_index,0]
-                # get the midpoint location and publish it
-                self.mid_point = Point()
-                self.mid_point.x = mid_x
-                self.mid_point.y = mid_y
-                self.mid_point.z = 0
-
-            # draw the mid point
-
-                cv2.circle(self.new_lines_img, (np.int(mid_x),np.int(mid_y)), 5, (0,0,255), -1)
-                self.pub_image_mid_point_img.publish(self.bridge.cv2_to_imgmsg(self.new_lines_img, "bgr8"))
-            else:
-                print('No valid parking intersection points detected!')
-
-            return mid_x, mid_y, ref_x, ref_y
-        else:
-            print('No valid mid point detected!')
-            return 0,0,0,0
-
+            if self.clst_number >= 1:
+                line_random = slope_ave[0][0]
+                theta = np.arctan(line_random)
+                if theta > 0:
+                    self.pub_adjust_angle.publish(theta)
+                else:
+                    theta = np.pi + theta
+                    self.pub_adjust_angle.publish(theta)
 
 def main():
 
-    rospy.init_node('cv_test')
+    rospy.init_node('adjust_parking')
     global park5, HOUGHLINES, CLST_NUM
     HOUGHLINES = False
     CLST_NUM = False
-    path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/parking_test_08.jpg'
+    path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/lane.jpg'
     park5=cv2.imread(path)
     print(park5.shape)
 
-    ic = image_receiver()
+    ic = adjust_parking()
     rospy.sleep(3)
     try:
         rospy.spin()

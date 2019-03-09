@@ -38,6 +38,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   CallCompressedImage.srv
+  GetPointLocation.srv
 )
 
 generate_messages(

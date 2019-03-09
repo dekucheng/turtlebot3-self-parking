@@ -35,13 +35,13 @@ class detect_laneoffset_center():
         #cv2.imshow('img',self.lane_image)
         self.height = self.lane_image.shape[0]
         self.width = self.lane_image.shape[1]
-        #path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/shared_files'
-        #cv2.imwrite(os.path.join(path,'lane.jpg'),self.lane_image)
+        path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/shared_files'
+        cv2.imwrite(os.path.join(path,'lane.jpg'),self.lane_image)
 
         # use  hshv color to filter out the black lines
         hsv = cv2.cvtColor(self.lane_image, cv2.COLOR_BGR2HSV)
         lower_yellow = np.array([0,0,50])
-        upper_yellow = np.array([180,255,150])
+        upper_yellow = np.array([180,255,250])
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
         res = cv2.bitwise_and(self.lane_image,self.lane_image,mask=mask)
         cannyed_image = cv2.Canny(res, 30, 85)

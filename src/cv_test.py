@@ -147,11 +147,26 @@ class image_receiver():
         self.pub_image_cannyed_lines = rospy.Publisher('cv_test/cannyed_lines', Image, queue_size=1)
         self.pub_image_mid_point_img = rospy.Publisher('cv_test/mid_point_img', Image, queue_size=1)
         self.pub_mid_point = rospy.Publisher('cv_test/mid_point', Point, queue_size=1)
-        self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
-        #self.call_get_mid_location = rospy.ServiceProxy('cv_test/get_mid_location', GetPointLocation)
-        rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
+
+        #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
+        #rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
+        rospy.Service('cv_test/turn_off', Trigger, self.svc_turn_off)
+        rospy.Service('cv_test/turn_on', Trigger, self.svc_turn_on)
         self.image_np = CompressedImage()
 
+        self.CLST_NUM = False
+        self.TURN_OFF = False
+
+    def svc_turn_on(self, data):
+
+        self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
+        rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
+        return(True,'cvtest topic turned on!')
+    def svc_turn_off(self,data):
+
+        self.image_sub.unregister()
+
+        return(True,'cvtest topic turned off!')
     def region_of_interest(self, img, vertices):
 
         mask = np.zeros_like(img)
@@ -163,6 +178,7 @@ class image_receiver():
 
 
     def gtimage(self, ros_data):
+
         '''Callback function of subscribed topic.
         Here images get converted and features detected'''
 
@@ -192,17 +208,17 @@ class image_receiver():
         # using hsv to filter out the color we want
         hsv = cv2.cvtColor(self.init_image, cv2.COLOR_BGR2HSV)
         # lower mask (0-10)
-        lower_red = np.array([0,50,50])
-        upper_red = np.array([25,250,250])
+        lower_red = np.array([0,50,10])
+        upper_red = np.array([28,250,250])
         mask0 = cv2.inRange(hsv, lower_red, upper_red)
         # upper mask (170-180)
-        lower_red = np.array([160,50,50])
-        upper_red = np.array([185,250,250])
+        lower_red = np.array([160,50,10])
+        upper_red = np.array([190,250,250])
         mask1 = cv2.inRange(hsv, lower_red, upper_red)
         mask = mask0 + mask1
 
         res = cv2.bitwise_and(self.init_image,self.init_image,mask=mask)
-        cannyed_image = cv2.Canny(res, 30, 85)
+        cannyed_image = cv2.Canny(res, 40, 85)
         cropped_image = self.region_of_interest(
             cannyed_image,
             np.array([self.region_of_vertices], np.int32)
@@ -216,7 +232,7 @@ class image_receiver():
             cropped_image,
             rho=4,
             theta=np.pi / 80,
-            threshold=35,
+            threshold=40,
             lines=np.array([]),
             minLineLength=40,
             maxLineGap=10
@@ -246,10 +262,11 @@ class image_receiver():
             #lines_array_represent = copy.copy(lines_array)
 
             lines_array_2pts = lines_array_represent(lines_array)
+
             self.clst_number = 0
             if self.hough_lines.shape[0] > 2:
                 Z = linkage(lines_array_2pts, 'ward')
-                max_d = self.init_image.shape[0]*0.5
+                max_d = self.init_image.shape[0]*0.9
                 clusters = fcluster(Z, max_d, criterion='distance')
                 self.clst_number = np.unique(clusters).shape[0]
                 slope_ave, dev_ave = lines_para_ave(self.clst_number,clusters, lines_array)
@@ -264,15 +281,16 @@ class image_receiver():
                 print('Invalid lines numbers, fail to use hierarchycal K-means')
 
             if self.clst_number == 3:
-                CLST_NUM = True
+                print('TRUE')
+                self.CLST_NUM = True
             else:
-                CLST_NUM = False
+                self.CLST_NUM = False
 
        # CompressedIamge to cv2 image and init init_image
 
     def svc_parking_point_pipeline(self, data):
-        print(CLST_NUM)
-        if True:
+        print(self.CLST_NUM)
+        if self.CLST_NUM == True:
             print('parking lanes number is valid, begin to check intersection points!')
             intersect_pts = list()
             for i in range(self.new_lines.shape[0]):
@@ -317,6 +335,10 @@ class image_receiver():
                 self.pub_image_mid_point_img.publish(self.bridge.cv2_to_imgmsg(self.new_lines_img, "bgr8"))
             else:
                 print('No valid parking intersection points detected!')
+                mid_x = 0
+                mid_y = 0
+                ref_x = 0
+                ref_y = 0
 
             return mid_x, mid_y, ref_x, ref_y
         else:
@@ -327,13 +349,12 @@ class image_receiver():
 def main():
 
     rospy.init_node('cv_test')
-    global park5, HOUGHLINES, CLST_NUM
+    global  HOUGHLINES
     HOUGHLINES = False
-    CLST_NUM = False
-    path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/parking_test_08.jpg'
-    park5=cv2.imread(path)
-    print(park5.shape)
 
+    #path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/parking_test_08.jpg'
+    #park5=cv2.imread(path)
+    #print(park5.shape)
     ic = image_receiver()
     rospy.sleep(3)
     try:

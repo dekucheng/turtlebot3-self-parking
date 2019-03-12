@@ -145,10 +145,15 @@ class adjust_parking():
         self.bridge = CvBridge()
         self.pub_image_crop_lines = rospy.Publisher('adjust_parking/crop_lines', Image, queue_size= 1)
         self.pub_image_cannyed_lines = rospy.Publisher('adjust_parking/cannyed_lines', Image, queue_size= 1)
-        self.pub_image_mid_point_img = rospy.Publisher('adjust_parking/mid_point_img', Image, queue_size= 1)
         self.pub_adjust_angle = rospy.Publisher('adjust_parking/adjust_angle', Float64, queue_size = 1)
-        self.image_sub = rospy.Subscriber("/camera/image_projected_compensated", Image,self.gtimage)
+        #self.image_sub = rospy.Subscriber("/camera/image_projected_compensated", Image,self.gtimage)
+        rospy.Service('adjust_parking/turn_on', Trigger, self.svc_turn_on)
+        self.TURN_ON = False
         #self.call_get_mid_location = rospy.ServiceProxy('adjust_parking/get_mid_location', GetPointLocation)
+
+    def svc_turn_on(self, data):
+        self.image_sub = rospy.Subscriber("/camera/image_projected_compensated", Image,self.gtimage)
+        return(True, 'adjust_parking node is on!')
 
     def region_of_interest(self, img, vertices):
 
@@ -274,9 +279,6 @@ def main():
     global park5, HOUGHLINES, CLST_NUM
     HOUGHLINES = False
     CLST_NUM = False
-    path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/lane.jpg'
-    park5=cv2.imread(path)
-    print(park5.shape)
 
     ic = adjust_parking()
     rospy.sleep(3)

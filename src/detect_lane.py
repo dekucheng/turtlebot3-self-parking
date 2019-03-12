@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import copy
 from sensor_msgs.msg import Image,CompressedImage
+from std_srvs.srv import Trigger
 from cv_bridge import CvBridge, CvBridgeError
 from std_msgs.msg import Float64
 import numpy as np
@@ -23,9 +24,12 @@ class detect_laneoffset_center():
         self.Bridge = CvBridge()
         self.image_sub = rospy.Subscriber("/camera/image_projected_compensated",Image,self.gtimage,queue_size = 1)
         self.mid_lane_pub = rospy.Publisher("/mid_lane_Image",Image, queue_size = 1)
+        rospy.Service('detect_lane/turn_off', Trigger, self.svc_turn_off)
 
 
-
+    def svc_turn_off(self, data):
+        self.image_sub.unregister()
+        return (True,'detect_lane node has been turned off!')
 
     def gtimage(self, ros_data):
         '''Callback function of subscribed topic.
@@ -76,7 +80,7 @@ class detect_laneoffset_center():
 
 def main():
 
-    rospy.init_node('detect_lane_offset')
+    rospy.init_node('detect_lane')
 
     lane_ct = detect_laneoffset_center()
     rospy.sleep(1)

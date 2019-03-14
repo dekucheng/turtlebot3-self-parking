@@ -122,10 +122,10 @@ class Navigate():
         twist.angular.y = 0
         twist.angular.z = 0
 
-        twist.linear.x = 0.15
+        twist.linear.x = 0.1
         twist.angular.z = 0
         self.pub_cmd_vel.publish(twist)
-        rospy.sleep(0.8)
+        rospy.sleep(2.2)
         self.fnShutDown()
         rospy.sleep(1)
 

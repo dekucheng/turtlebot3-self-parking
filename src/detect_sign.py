@@ -1,23 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-################################################################################
-# Copyright 2018 ROBOTIS CO., LTD.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-################################################################################
-
-# Author: Leon Jung, Gilbert
 
 import rospy
 import numpy as np
@@ -29,29 +10,28 @@ from std_msgs.msg import UInt8
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge, CvBridgeError
 from std_srvs.srv import Trigger
+from geometry_msgs.msg import Twist
 
 class DetectSign():
     def __init__(self):
         self.fnPreproc()
 
-        self.sub_image_type = "compressed" # you can choose image type "compressed", "raw"
-        self.pub_image_type = "compressed" # you can choose image type "compressed", "raw"
+        self.sub_image_type = "compressed"
+        self.pub_image_type = "compressed"
 
-        if self.sub_image_type == "compressed":
+
             # subscribes compressed image
-            self.sub_image_original = rospy.Subscriber('/camera/image_rect_color/compressed', CompressedImage, self.cbFindTrafficSign, queue_size = 1)
-        elif self.sub_image_type == "raw":
-            # subscribes raw image
-            self.sub_image_original = rospy.Subscriber('/detect/image_input', Image, self.cbFindTrafficSign, queue_size = 1)
+        self.sub_image_original = rospy.Subscriber('/camera/image_rect_color/compressed', CompressedImage, self.cbFindTrafficSign, queue_size = 1)
+
 
         self.pub_traffic_sign = rospy.Publisher('/detect/traffic_sign', UInt8, queue_size=1)
 
-        if self.pub_image_type == "compressed":
+        #if self.pub_image_type == "compressed":
             # publishes traffic sign image in compressed type
-            self.pub_image_traffic_sign = rospy.Publisher('/detect/image_output/compressed', CompressedImage, queue_size = 1)
-        elif self.pub_image_type == "raw":
+        self.pub_image_traffic_sign = rospy.Publisher('/detect/image_output/compressed', CompressedImage, queue_size = 1)
+        #elif self.pub_image_type == "raw":
             # publishes traffic sign image in raw type
-            self.pub_image_traffic_sign = rospy.Publisher('/detect/image_output', Image, queue_size = 1)
+        #self.pub_image_traffic_sign = rospy.Publisher('/detect/image_output', Image, queue_size = 1)
 
         self.cvBridge = CvBridge()
 
@@ -65,7 +45,22 @@ class DetectSign():
 
         self.call_adjust_parking_node = rospy.ServiceProxy('adjust_parking/turn_on', Trigger)
 
+        self.pub_cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
+
+
         self.counter = 1
+
+    def fnShutDown(self):
+        rospy.loginfo("Shutting down. cmd_vel will be 0")
+
+        twist = Twist()
+        twist.linear.x = 0
+        twist.linear.y = 0
+        twist.linear.z = 0
+        twist.angular.x = 0
+        twist.angular.y = 0
+        twist.angular.z = 0
+        self.pub_cmd_vel.publish(twist)
 
     def fnPreproc(self):
         # Initiate SIFT detector
@@ -76,9 +71,9 @@ class DetectSign():
         dir_path = dir_path.replace('turtlebot3_selfparking/src', 'turtlebot3_selfparking/')
         dir_path += 'file/detect_sign/'
 
-        self.img2 = cv2.imread(dir_path + 'Parking_00.jpg',0)         # trainImage1
-        self.img3 = cv2.imread(dir_path + 'Parking_01.jpg',0)      # trainImage2
-        self.img4 = cv2.imread(dir_path + 'Parking_02.jpg',0)       # trainImage3
+        self.img2 = cv2.imread(dir_path + 'Parking_03.jpg',0)         # trainImage1
+        self.img3 = cv2.imread(dir_path + 'Parking_04.jpg',0)      # trainImage2
+        self.img4 = cv2.imread(dir_path + 'Parking_05.jpg',0)       # trainImage3
 
         self.kp2, self.des2 = self.sift.detectAndCompute(self.img2,None)
         self.kp3, self.des3 = self.sift.detectAndCompute(self.img3,None)
@@ -92,6 +87,14 @@ class DetectSign():
 
         self.flann = cv2.FlannBasedMatcher(index_params, search_params)
 
+    def region_of_interest(self, img, vertices):
+
+        mask = np.zeros_like(img)
+        match_mask_color = 255 # This line altered for grayscale.
+        cv2.fillPoly(mask, vertices, match_mask_color)
+        masked_image = cv2.bitwise_and(img, mask)
+        return masked_image
+
     def fnCalcMSE(self, arr1, arr2):
             squared_diff = (arr1 - arr2) ** 2
             sum = np.sum(squared_diff)
@@ -102,7 +105,14 @@ class DetectSign():
     def cbFindTrafficSign(self, image_msg):
         # drop the frame to 1/15 (5fps) because of the processing speed. This is up to your computer's operating power.
 
-        if self.counter % 8 != 0:
+        self.region_of_vertices = [
+            (120, 480),
+            #(0, 350),
+            (320, 480),
+            (320, 0),
+            (120, 0),
+        ]
+        if self.counter % 2 != 0:
             self.counter += 1
             return
         else:
@@ -116,6 +126,11 @@ class DetectSign():
         elif self.sub_image_type == "raw":
             cv_image_input = self.cvBridge.imgmsg_to_cv2(image_msg, "bgr8")
 
+        #cv_image_input = self.region_of_interest(
+        #    cv_image_input,
+        #    np.array([self.region_of_vertices], np.int32)
+        #)
+        cv_image_input = cv_image_input[320:480, 100:540]
         MIN_MATCH_COUNT = 9
         MIN_MSE_DECISION = 50000
 
@@ -266,13 +281,17 @@ class DetectSign():
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_imgmsg(final4, "bgr8"))
 
         # parking sign been detected, close detect_lane lane follow detect sign nodes and start cv_test node
-        if image_out_num != 1:
-            self.call_cv_test_node()
-            self.call_lane_follow_node()                                    # shut down lane follow node
-            self.call_detect_lane_node()                                    # shut down detect lane node
-            self.sub_image_original.unregister()                            # shut down detect_sign node
-            self.call_adjust_parking_node()                                 # turn on adjust_parking_node
-            print('Parking sign has been detected, detect_sign node turned off')
+            if image_out_num != 1:
+
+                rospy.sleep(1)
+
+
+                self.call_cv_test_node()
+                self.call_lane_follow_node()                                    # shut down lane follow node
+                self.call_detect_lane_node()                                    # shut down detect lane node
+                self.sub_image_original.unregister()                            # shut down detect_sign node
+                self.call_adjust_parking_node()                                 # turn on adjust_parking_node
+                print('Parking sign has been detected, detect_sign node turned off')
 
     def main(self):
         rospy.spin()

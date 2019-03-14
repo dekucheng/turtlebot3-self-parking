@@ -1,0 +1,19 @@
+<launch>
+
+ 
+    <node pkg="turtlebot3_selfparking" type="detect_lane.py" name="detect_lane" output="screen" />
+
+    <node pkg="turtlebot3_selfparking" type="lane_follow.py" name="lane_follow" output="screen" />
+
+    <node pkg="turtlebot3_selfparking" type="detect_sign.py" name="detect_sign" output="screen" />
+    
+    <node pkg="turtlebot3_selfparking" type="cv_test.py" name="cv_test" output="screen" />
+    
+    <node pkg="turtlebot3_selfparking" type="adjust_parking.py" name="adjust_parking" output="screen" />
+    
+    <node pkg="turtlebot3_selfparking" type="manipulation.py" name="manipulation" output="screen" />
+    
+    
+    
+    
+</launch>

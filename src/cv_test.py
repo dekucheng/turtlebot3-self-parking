@@ -266,7 +266,7 @@ class image_receiver():
             self.clst_number = 0
             if self.hough_lines.shape[0] > 2:
                 Z = linkage(lines_array_2pts, 'ward')
-                max_d = self.init_image.shape[0]*0.9
+                max_d = self.init_image.shape[0]*0.45
                 clusters = fcluster(Z, max_d, criterion='distance')
                 self.clst_number = np.unique(clusters).shape[0]
                 slope_ave, dev_ave = lines_para_ave(self.clst_number,clusters, lines_array)

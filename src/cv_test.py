@@ -147,6 +147,9 @@ class image_receiver():
         self.pub_image_cannyed_lines = rospy.Publisher('cv_test/cannyed_lines', Image, queue_size=1)
         self.pub_image_mid_point_img = rospy.Publisher('cv_test/mid_point_img', Image, queue_size=1)
         self.pub_mid_point = rospy.Publisher('cv_test/mid_point', Point, queue_size=1)
+        # for report
+        self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
+        rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
 
         #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
         #rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)

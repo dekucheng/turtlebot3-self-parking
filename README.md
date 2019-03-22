@@ -1,16 +1,18 @@
 # Turtlebot3 Self-Parking
 ## Video Demo
-
-<p align = "center">
-  <img src = <iframe width="560" height="315" src="https://www.youtube.com/embed/LZPb7w0aY1Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> height = "240px">
-</p>
+See the demo in [Youtube](https://www.youtube.com/watch?v=LZPb7w0aY1Y&feature=youtu.be).
 
 ## Set up
 * Ubuntu 18.04
-* ROS melodic
-* Turtlebot3
-* Host system - Raspberry Pi 3
-* Slave system - OpenCR controller board
+
+* [ROS melodic](http://wiki.ros.org/melodic)
+
+* Turtlebot3 - burger
+
+   Host system - Raspberry Pi 3
+
+   Slave system - OpenCR controller board
+
 * Camera - Raspberry Pi ‘fish-eye’ camera
 
 ## Project Goal
@@ -74,7 +76,7 @@ The two green points are the two middle points of left lane and right lane respe
 
 
 ### Parking Sign Detection
-To check if there is a parking sign shows up in the view of camera, taking the balance between computation speed and accuracy into consideration for online detection, I used the *[SIFT]*(https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf) (Scale Invariant Feature Transform, invented by David G.Lowe) to detect the parking sign.To increase detection robustness, I collect several [parking sign templates](file/detect_sign) from different angles to increase the robustness for detection. Here is the result of sign detection:
+To check if there is a parking sign shows up in the view of camera, taking the balance between computation speed and accuracy into consideration for online detection, I used the [*SIFT*](https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf) (Scale Invariant Feature Transform, invented by David G.Lowe) to detect the parking sign.To increase detection robustness, I collect several [parking sign templates](file/detect_sign) from different angles to increase the robustness for detection. Here is the result of sign detection:
 
 <p align = "center">
   <img src = "file/images/sign_detection.png" height = "240px">
@@ -104,7 +106,7 @@ Then *Canny Edge Detection* is applied to detect the edge in HSV image. To extra
 </p>
 
 #### Lines Clustering
-To merge the detected lines, also considering that multiple parking slots need to be detected (number of clusters not known), I use ***SciPy Hierarchical Clustering***. It is an adaptive clustering method which keeps processing until all the lines merged into one cluster. Unlike ***K-means***, it starts searching at each line's representing data and keeps enlarge searching region. I set a threshold spatial distance during the clustering process to get the cluster size. Here is the clustering process and result:
+To merge the detected lines, also considering that multiple parking slots need to be detected (number of clusters not known), I use [*SciPy Hierarchical Clustering*](https://docs.scipy.org/doc/scipy/reference/cluster.hierarchy.html). It is an adaptive clustering method which keeps processing until all the lines merged into one cluster. Unlike ***K-means***, it starts searching at each line's representing data and keeps enlarge searching region. I set a threshold spatial distance during the clustering process to get the cluster size. Here is the clustering process and result:
 
 <p align = "center">
   <img src = "file/images/scipy_cluster.png" height = "360px" width = "560px">

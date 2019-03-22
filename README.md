@@ -1,4 +1,9 @@
 # Turtlebot3 Self-Parking
+## Video Demo
+
+<p align = "center">
+  <img src = <iframe width="560" height="315" src="https://www.youtube.com/embed/LZPb7w0aY1Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> height = "240px">
+</p>
 
 ## Set up
 * Ubuntu 18.04
@@ -162,5 +167,7 @@ Given the parking point configuration, now it’s time to navigate turtlebot to 
 
 ## Stretch Goal
 This project focuses on a low-level task of autonomous driving techniques. The workflow seems not much complicated, but I think these low-level autonomous driving techniques are durable for warehouse robotics due to considering the low cost on that. Only if it’s robust enough, the robot can be able to finish simple tasks in a known environment.
+
 There are still some drawbacks in this project. For example, if the parking slot is far away from the robot, it can not detect it well due to the failure of color filtering and the localization of it is quite simple, which can not handle more complex task. Also, the SIFT detection method is computationally expensive.
+
 So my stretch goal is to first apply some techniques like SVM or some simple deep neural networks to detect the parking slot first, and then apply further algorithm to get the parking point configuration. Another goal is to use lidar combined with the usage of odometry to do some slam to better map the world and localize the robot, which is useful to finish more complicated tasks.

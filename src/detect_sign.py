@@ -131,7 +131,7 @@ class DetectSign():
         #    np.array([self.region_of_vertices], np.int32)
         #)
         cv_image_input = cv_image_input[320:480, 100:540]
-        MIN_MATCH_COUNT = 9
+        MIN_MATCH_COUNT = 10
         MIN_MSE_DECISION = 50000
 
         # find the keypoints and descriptors with SIFT

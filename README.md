@@ -165,7 +165,21 @@ So with 3 equations and 3 unknowns, the configuration of parking point relative 
 </p>
 
 ### Navigation
-Given the parking point configuration, now it’s time to navigate turtlebot to the parking slot. Turtlebot uses *twist* message to navigate, so this step is just a feed forward control to approach the parking point. When it gets to that point, the next step is reusing the image projected by Homography Matrix and then use a PI controller to adjust the angle to face straight towards to the slot then park itself into it.
+Given the parking point configuration, now it’s time to navigate turtlebot to the parking slot. Turtlebot uses *twist* message to navigate, so this step is just a feed forward control to approach the parking point. When it gets to that point, the next step is reusing the image projected by Homography Matrix and then use a PI controller to adjust the angle to face straight towards to the slot then park itself into it. Here is the result of navigation from different angles:
+<p align = "center">
+  <img src = "file/images/multiangle0.gif" height = "280px">
+</p>
+
+<p align = "center">
+  <img src = "file/images/multiangle1.gif" height = "280px">
+</p>
+
+<p align = "center">
+  <img src = "file/images/multiangle2.gif" height = "280px">
+</p>
+<p align="center">
+  <b>Navigate to Parking points from different angles</b><br>
+</p>
 
 ## Stretch Goal
 This project focuses on a low-level task of autonomous driving techniques. The workflow seems not much complicated, but I think these low-level autonomous driving techniques are durable for warehouse robotics due to considering the low cost on that. Only if it’s robust enough, the robot can be able to finish simple tasks in a known environment.

@@ -12,7 +12,7 @@ class ControlLane():
         #self.sub_max_vel = rospy.Subscriber('/control/max_vel', Float64, self.cbGetMaxVel, queue_size = 1)
         self.pub_cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
         self.lastError = 0
-        self.MAX_VEL = 0.09
+        self.MAX_VEL = 0.105
         rospy.Service('lane_follow/turn_off', Trigger, self.svc_turn_off)
 
         rospy.on_shutdown(self.fnShutDown)

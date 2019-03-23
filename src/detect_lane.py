@@ -46,22 +46,22 @@ class detect_laneoffset_center():
         hsv = cv2.cvtColor(self.lane_image, cv2.COLOR_BGR2HSV)
         lower_yellow = np.array([0,0,50])
         upper_yellow = np.array([20,255,255])
-        
+
         lower_yellow2 = np.array([0,0,0])
         upper_yellow2 = np.array([180,255,100])
-        
+
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
         mask2 = cv2.inRange(hsv, lower_yellow2, upper_yellow2)
         mask = mask + mask2
-        
-        
+
+
         # fill the white trigle space with black triangles on left and right side of bottom
         triangle1 = np.array([[0, 599], [0, 240], [200, 599]], np.int32)
         triangle2 = np.array([[999, 599], [999, 240], [799, 599]], np.int32)
         black = (0, 0, 0)
         white = (255, 255, 255)
         mask = cv2.fillPoly(mask, [triangle1, triangle2], black)
-        
+
         res = cv2.bitwise_and(self.lane_image,self.lane_image,mask=mask)
         cannyed_image = cv2.Canny(res, 30, 85)
         cannyed_image = cv2.fillPoly(cannyed_image, [triangle1, triangle2], black)
@@ -83,15 +83,15 @@ class detect_laneoffset_center():
         #mid_lane_img = copy.copy(self.lane_image)
         #print(int((leftx_base+rightx_base)/2))
         cannyed_image = cv2.line(cannyed_image, (int((leftx_base+rightx_base)/2), self.height), (int((leftx_base+rightx_base)/2),0), (255,0,0), 2)
-        
-        path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/shared_files'
-        cv2.imwrite(os.path.join(path,'gray_lanes.jpg'),mask)
-        
+
+        #path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/shared_files'
+        #cv2.imwrite(os.path.join(path,'gray_lanes.jpg'),mask)
+
         mask = cv2.line(mask, (int((leftx_base+rightx_base)/2), self.height), (int((leftx_base+rightx_base)/2),0), (255,0,0), 2)
-        
+
         cannyed_image = cv2.cvtColor(cannyed_image, cv2.COLOR_GRAY2BGR)
         cannyed_image = self.Bridge.cv2_to_imgmsg(cannyed_image,"bgr8")
-        
+
         # below modified for report
         res = self.Bridge.cv2_to_imgmsg(res, "bgr8")
         mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)

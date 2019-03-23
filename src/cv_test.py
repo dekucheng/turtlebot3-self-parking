@@ -149,7 +149,8 @@ class image_receiver():
         self.pub_mid_point = rospy.Publisher('cv_test/mid_point', Point, queue_size=1)
         # for report
         #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
-        #rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
+        #
+        rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
 
         #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
         #rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
@@ -189,13 +190,8 @@ class image_receiver():
         self.image_reac = ros_data.data
 
         self.init_image = compress2img(self.image_reac)
-        cv2.imwrite('/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/IMAGE.jpg',self.init_image)
+        #cv2.imwrite('/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/IMAGE.jpg',self.init_image)
 
-        #cv2.imshow('img',self.init_image)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-        #print(self.init_image.shape)
-        #\self.init_image = park5
         self.height = self.init_image.shape[0]
         self.width = self.init_image.shape[1]
         self.region_of_vertices = [

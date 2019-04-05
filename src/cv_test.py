@@ -19,9 +19,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.cluster.hierarchy import fcluster
 from matplotlib.patches import Circle
 from geometry_msgs.msg import Point
-# some setting for this notebook to actually show the graphs inline
-# you probably won't need this
-#matplotlib inline
+
 np.set_printoptions(precision=5, suppress=True)  # suppress scientific float notation
 
 
@@ -147,13 +145,12 @@ class image_receiver():
         self.pub_image_cannyed_lines = rospy.Publisher('cv_test/cannyed_lines', Image, queue_size=1)
         self.pub_image_mid_point_img = rospy.Publisher('cv_test/mid_point_img', Image, queue_size=1)
         self.pub_mid_point = rospy.Publisher('cv_test/mid_point', Point, queue_size=1)
-        # for report
+        # run this node independently
         #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
-        #
-        rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
-
         #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
         #rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
+
+        rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
         rospy.Service('cv_test/turn_off', Trigger, self.svc_turn_off)
         rospy.Service('cv_test/turn_on', Trigger, self.svc_turn_on)
         self.image_np = CompressedImage()
@@ -351,9 +348,6 @@ def main():
     global  HOUGHLINES
     HOUGHLINES = False
 
-    #path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/parking_test_08.jpg'
-    #park5=cv2.imread(path)
-    #print(park5.shape)
     ic = image_receiver()
     rospy.sleep(3)
     try:

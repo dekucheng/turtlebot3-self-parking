@@ -12,7 +12,7 @@ class ControlLane():
         #self.sub_max_vel = rospy.Subscriber('/control/max_vel', Float64, self.cbGetMaxVel, queue_size = 1)
         self.pub_cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
         self.lastError = 0
-        self.MAX_VEL = 0.105
+        self.MAX_VEL = 0.06
         rospy.Service('lane_follow/turn_off', Trigger, self.svc_turn_off)
 
         rospy.on_shutdown(self.fnShutDown)
@@ -29,8 +29,7 @@ class ControlLane():
 
         error = center - 500
 
-        Kp = 0.0026
-        #Kd = 0.0007
+        Kp = 0.0030  # before was 0.0028
         Kd = 0.006
         angular_z = Kp * error + Kd * (error - self.lastError)
         self.lastError = error

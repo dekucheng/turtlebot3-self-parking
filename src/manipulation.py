@@ -234,37 +234,13 @@ def main():
         #navi.mid_x = 306
         #navi.mid_y = 230
     park_x, park_z = navi.get_world_location(navi.mid_x, navi.mid_y)
-    '''
-    while (park_z < 0) & (not rospy.is_shutdown()):
-
-        mid_xy = navi.call_get_mid_location()
-        navi.mid_x = int(mid_xy.x)
-        navi.mid_y = int(mid_xy.y)
-        navi.ref_x = int(mid_xy.refx)
-        navi.ref_y = int(mid_xy.refy)
-
-        park_ref_x,park_ref_z = navi.get_world_location(navi.ref_x, navi.ref_y)
-        parkingangle = navi.get_parking_rotateangle(park_x, park_z, park_ref_x, park_ref_z)
-        navi.fake_go_parking(park_x, park_z, parkingangle)
-        park_x, park_z = navi.get_world_location(navi.mid_x, navi.mid_y)
-        print(park_z)
-        print('The parking location is not valid, try to go further to get valid location!')
-
-    mid_xy = navi.call_get_mid_location()
-    navi.mid_x = int(mid_xy.x)
-    navi.mid_y = int(mid_xy.y)
-    navi.ref_x = int(mid_xy.refx)
-    navi.ref_y = int(mid_xy.refy)
-    '''
     park_ref_x,park_ref_z = navi.get_world_location(navi.ref_x, navi.ref_y)
     parkingangle = navi.get_parking_rotateangle(park_x, park_z, park_ref_x, park_ref_z)
     navi.go_parking(park_x, park_z, parkingangle)
-
     rospy.sleep(1)
     print('The coordinate of parking point in image frame is (%d, %d)' %(navi.mid_x,navi.mid_y))
 
-    #print(navi.mid_x, navi.mid_y)
-    #mani.parking_test()
+
     while not rospy.is_shutdown():
         rospy.spin()
     return

@@ -44,14 +44,14 @@ class detect_laneoffset_center():
 
         # use  hshv color to filter out the black lines
         hsv = cv2.cvtColor(self.lane_image, cv2.COLOR_BGR2HSV)
-        lower_yellow = np.array([0,0,50])
-        upper_yellow = np.array([20,255,255])
+        lower_color = np.array([0,0,50])
+        upper_color = np.array([20,255,255])
 
-        lower_yellow2 = np.array([0,0,0])
-        upper_yellow2 = np.array([180,255,100])
+        lower_color2 = np.array([0,0,0])
+        upper_color2 = np.array([180,255,40])
 
-        mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-        mask2 = cv2.inRange(hsv, lower_yellow2, upper_yellow2)
+        mask = cv2.inRange(hsv, lower_color, upper_color)
+        mask2 = cv2.inRange(hsv, lower_color2, upper_color2)
         mask = mask + mask2
 
 
@@ -65,28 +65,18 @@ class detect_laneoffset_center():
         res = cv2.bitwise_and(self.lane_image,self.lane_image,mask=mask)
         cannyed_image = cv2.Canny(res, 30, 85)
         cannyed_image = cv2.fillPoly(cannyed_image, [triangle1, triangle2], black)
-        #cv2.imshow('img',res)
-        #cv2.waitKey(1000)
-        #cv2.destroyAllWindows()
-        #print(gray_image.shape)
+
 
         # calculate the image histogram after being filted
         histogram = np.sum(mask[res.shape[0]//2:,:], axis=0)
-        #histogram = np.sum(histogram[:,:], axis=1)
+
 
         midpoint = np.int(histogram.shape[0]//2)
         leftx_base = np.argmax(histogram[:midpoint])
         rightx_base = np.argmax(histogram[midpoint:]) + midpoint
 
-        # derive the offset value, negative means offset by right, positive means offset by left.
-        # publish to rqt to visulize if parameters are set correctself
-        #mid_lane_img = copy.copy(self.lane_image)
-        #print(int((leftx_base+rightx_base)/2))
+
         cannyed_image = cv2.line(cannyed_image, (int((leftx_base+rightx_base)/2), self.height), (int((leftx_base+rightx_base)/2),0), (255,0,0), 2)
-
-        #path='/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/shared_files'
-        #cv2.imwrite(os.path.join(path,'gray_lanes.jpg'),mask)
-
         mask = cv2.line(mask, (int((leftx_base+rightx_base)/2), self.height), (int((leftx_base+rightx_base)/2),0), (255,0,0), 2)
 
         cannyed_image = cv2.cvtColor(cannyed_image, cv2.COLOR_GRAY2BGR)

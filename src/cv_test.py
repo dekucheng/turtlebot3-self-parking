@@ -67,7 +67,6 @@ def get_new_lines(k_ave, b_ave, width):
 # change the represent format of each line
 def lines_array_represent(lines):
     lines_invk = copy.copy(lines)
-    #lines_invk[:,0] = -lines_invk[:,0]
     lines_2pts = np.zeros((lines.shape[0],4))
 
     for i in range(lines_invk.shape[0]):
@@ -146,11 +145,10 @@ class image_receiver():
         self.pub_image_mid_point_img = rospy.Publisher('cv_test/mid_point_img', Image, queue_size=1)
         self.pub_mid_point = rospy.Publisher('cv_test/mid_point', Point, queue_size=1)
         # run this node independently
-        #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
-        #self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
-        #rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
-
+        self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
+        self.image_sub = rospy.Subscriber("/camera/image_rect_color/compressed",CompressedImage,self.gtimage)
         rospy.Service('cv_test/get_mid_location',GetPointLocation,self.svc_parking_point_pipeline)
+
         rospy.Service('cv_test/turn_off', Trigger, self.svc_turn_off)
         rospy.Service('cv_test/turn_on', Trigger, self.svc_turn_on)
         self.image_np = CompressedImage()
@@ -183,11 +181,9 @@ class image_receiver():
         '''Callback function of subscribed topic.
         Here images get converted and features detected'''
 
-        #### direct conversion to CV2 reac means the name of subscribing topic reac_compress ####
+        # direct conversion to CV2 reac means the name of subscribing topic reac_compress
         self.image_reac = ros_data.data
-
         self.init_image = compress2img(self.image_reac)
-        #cv2.imwrite('/home/zhicheng/turtlebot3ws/src/turtlebot3_selfparking/src/IMAGE.jpg',self.init_image)
 
         self.height = self.init_image.shape[0]
         self.width = self.init_image.shape[1]
@@ -203,11 +199,9 @@ class image_receiver():
 
         # using hsv to filter out the color we want
         hsv = cv2.cvtColor(self.init_image, cv2.COLOR_BGR2HSV)
-        # lower mask (0-10)
         lower_red = np.array([0,50,10])
         upper_red = np.array([28,250,250])
         mask0 = cv2.inRange(hsv, lower_red, upper_red)
-        # upper mask (170-180)
         lower_red = np.array([160,50,10])
         upper_red = np.array([190,250,250])
         mask1 = cv2.inRange(hsv, lower_red, upper_red)
@@ -242,7 +236,6 @@ class image_receiver():
         else:
             HOUGHLINES = False
             print('no hough lines detected!')
-            #self.pub_image_crop_lines.publish(self.bridge.cv2_to_imgmsg(self.init_image, "bgr8"))
 
         if HOUGHLINES == True:
             slope_list = list()
@@ -255,7 +248,6 @@ class image_receiver():
                     dev_list.append(dev)
 
             lines_array = np.column_stack((slope_list, dev_list))
-            #lines_array_represent = copy.copy(lines_array)
 
             lines_array_2pts = lines_array_represent(lines_array)
 

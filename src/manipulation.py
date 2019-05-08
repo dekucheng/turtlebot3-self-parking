@@ -171,9 +171,7 @@ class Navigate():
         v0 = self.cam_mat[1][2]
         cos = np.cos(self.theta)
         sin = np.sin(self.theta)
-        #yc = 0.12
 
-        #zc = (lf*yc)/(v-v0)
         zc = 0.12*lf/(v0*cos-lf*sin-v*cos)
         print(v0*cos-lf*sin-v*cos)
         yc = (-zc*sin-0.12)/cos
@@ -181,13 +179,7 @@ class Navigate():
         pca = np.array([xc,yc,zc,1]).T
         print('pca=',pca)
 
-        #Lc = np.sqrt(yc**2 + zc**2)
-        #afa = np.arcsin(np.abs(yc)/np.abs(Lc))
-        #lc = np.abs(yc)/np.sin(self.theta+afa)
-        #ycr = lc/Lc * yc
-        #xcr = lc/Lc * xc
-        #zcr = lc/Lc * zc
-        #pcr = np.array([xcr,ycr,zcr,1]).T
+
         psc = np.dot(self.pose_mat,pca)
         # rotate axis to ros frame
         xw = -psc[0]
